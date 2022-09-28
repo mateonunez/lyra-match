@@ -1,11 +1,12 @@
-import {create, insert, search, SearchParams} from "@lyrasearch/lyra"
+import {create, insert, PropertiesSchema, search, SearchParams} from "@lyrasearch/lyra"
 import {test} from "tap"
-import {match} from ".."
+import {match, MatchProperties, MatchProperty} from ".."
 
-test("test", ({plan, same}) => {
-  plan(1)
-  same(1, 1)
-})
+function removeId<T extends PropertiesSchema>(match: MatchProperty<T>): Omit<MatchProperties<T>, "id"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {id, ...rest} = match
+  return rest as unknown as Omit<MatchProperties<T>, "id">
+}
 
 test("match", ({test, plan}) => {
   plan(2)
@@ -29,7 +30,7 @@ test("match", ({test, plan}) => {
   test("propetries should match", ({same, end}) => {
     const params = {term: "mateonunez"} as SearchParams<typeof lyra.schema>
     const {hits} = search(lyra, params)
-    const matches = match(lyra, params, hits)
+    const matches = match(hits, params).map(removeId)
 
     same(matches, [
       {
@@ -43,7 +44,7 @@ test("match", ({test, plan}) => {
   test("searched props should match", ({same, end}) => {
     const params = {term: "mateonunez", properties: ["author"]} as SearchParams<typeof lyra.schema>
     const {hits} = search(lyra, params)
-    const matches = match(lyra, params, hits)
+    const matches = match(hits, params).map(removeId)
 
     same(matches, [
       {
