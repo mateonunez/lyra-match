@@ -2,9 +2,9 @@
   "name": "@mateonunez/lyra-match",
   "version": "0.0.0-beta.0",
   "description": "Show which properties matches with your Lyra search",
-  "main": "./dist/cjs/runtimes/server/index.js",
-  "module": "./dist/esm/runtimes/server/index.js",
-  "types": "./dist/esm/runtimes/server/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "browser": "./dist/client/index.js",
   "homepage": "https://github.com/mateonunez/lyra-match#readme",
   "repository": {
@@ -23,8 +23,9 @@
     "test": "c8 -c ./src/tests/config/c8.json tap --rcfile=./src/tests/config/tap.yml ./src/tests/**/*.test.ts",
     "build:cjs": "tsc --project tsconfig.cjs.json",
     "build:esm": "tsc --project tsconfig.esm.json",
-    "build:browser": "esbuild --bundle --sourcemap --target=es2019 --format=esm --outfile=./dist/client/index.js ./src/runtimes/client/index.ts",
-    "build": "rimraf ./dist && npm run build:esm && npm run build:cjs && npm run build:browser"
+    "build:browser": "esbuild --bundle --sourcemap --target=es2019 --format=esm --outfile=./dist/client/index.js ./src/index.ts",
+    "build": "rimraf ./dist && npm run build:esm && npm run build:cjs && npm run build:browser",
+    "just": "ts-node ./src/just.ts"
   },
   "keywords": [
     "lyra",
