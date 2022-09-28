@@ -9,7 +9,7 @@ function removeId<T extends PropertiesSchema>(match: MatchProperty<T>): Omit<Mat
 }
 
 test("match", ({test, plan}) => {
-  plan(2)
+  plan(3)
 
   const lyra = create({
     schema: {
@@ -19,7 +19,6 @@ test("match", ({test, plan}) => {
       has_pets: "boolean"
     }
   })
-
   insert(lyra, {
     author: "mateonunez",
     github: "https://github.com/mateonunez",
@@ -49,6 +48,20 @@ test("match", ({test, plan}) => {
     same(matches, [
       {
         author: "mateonunez"
+      }
+    ])
+    end()
+  })
+
+  // skipped reason: https://github.com/LyraSearch/lyra/issues/139
+  test("should search correctly numbers", {skip: true}, ({same, end}) => {
+    const params = {term: 27} as SearchParams<typeof lyra.schema>
+    const {hits} = search(lyra, params)
+    const matches = match(hits, params).map(removeId)
+
+    same(matches, [
+      {
+        age: "27" // this should be a number
       }
     ])
     end()

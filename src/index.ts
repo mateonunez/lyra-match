@@ -9,21 +9,23 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   const {term} = params
   const matches = [] as unknown as MatchProperties<T>
   for (const hit of hits) {
-    const props = properties.length > 0 ? properties : Object.keys(hit)
-    const matchedProps = createMatchesObject(hit, term, props as [])
+    const props = (properties.length > 0 ? properties : Object.keys(hit)) as []
+    const matchedProps = createMatchesObject(hit, term, props)
     matches.push(matchedProps)
   }
   return matches
 }
 
-function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string, properties: []): MatchProperty<T> {
+function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: []): MatchProperty<T> {
   const matchedProps = {} as any
   for (const property of properties) {
     const value = hit[property]
     matchedProps["id"] = hit.id
-    if (typeof value === "string" && value.includes(term)) {
-      matchedProps[property] = value
-    }
+    if (checkValue(value, term)) matchedProps[property] = value
   }
   return matchedProps
+}
+
+function checkValue(value: any, term: string | number | boolean): boolean {
+  return (typeof value === "string" && (value as string).includes(term as string)) || ((typeof value === "number" || typeof value === "boolean") && value === term)
 }
