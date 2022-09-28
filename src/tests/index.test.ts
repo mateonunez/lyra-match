@@ -53,8 +53,8 @@ test("match", ({test, plan}) => {
     end()
   })
 
-  // skipped reason: https://github.com/LyraSearch/lyra/issues/139
   test("should search correctly numbers", {skip: true}, ({same, end}) => {
+    // @ts-expect-error - skipped reason: https://github.com/LyraSearch/lyra/issues/139
     const params = {term: 27} as SearchParams<typeof lyra.schema>
     const {hits} = search(lyra, params)
     const matches = match(hits, params).map(removeId)
