@@ -67,3 +67,45 @@ test("match", ({test, plan}) => {
     end()
   })
 })
+
+test("errors", ({test, plan}) => {
+  plan(2)
+
+  const lyra = create({
+    schema: {
+      author: "string",
+      quote: "string"
+    }
+  })
+
+  insert(lyra, {
+    author: "Oscar Wilde",
+    quote: "Be yourself; everyone else is already taken."
+  })
+
+  test("properties should be retrieved event with different word cases", ({same, end}) => {
+    const params = {term: "oscar"} as SearchParams<typeof lyra.schema>
+    const {hits} = search(lyra, params)
+    const matches = match(hits, params).map(removeId)
+
+    same(matches, [
+      {
+        author: "Oscar Wilde"
+      }
+    ])
+    end()
+  })
+
+  test("properties should be retrieved event with different word cases", ({same, end}) => {
+    const params = {term: "EVERYONE"} as SearchParams<typeof lyra.schema>
+    const {hits} = search(lyra, params)
+    const matches = match(hits, params).map(removeId)
+
+    same(matches, [
+      {
+        quote: "Be yourself; everyone else is already taken."
+      }
+    ])
+    end()
+  })
+})
