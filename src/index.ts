@@ -27,5 +27,8 @@ function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, t
 }
 
 function checkValue(value: any, term: string | number | boolean): boolean {
-  return (typeof value === "string" && (value as string).includes(term as string)) || ((typeof value === "number" || typeof value === "boolean") && value === term)
+  return (
+    (typeof value === "string" && value.toString().toLowerCase().includes(term.toString().toLowerCase())) ||
+    ((typeof value === "number" || typeof value === "boolean") && value === term)
+  )
 }
