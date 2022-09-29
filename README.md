@@ -2,7 +2,6 @@
 
 Show which properties matches with your [Lyra](https://github.com/lyrasearch/lyra) search.
 
-
 [![Tests](https://github.com/mateonunez/lyra-match/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mateonunez/lyra-match/actions/workflows/ci.yml)
 
 ## Installation
