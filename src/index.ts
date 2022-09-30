@@ -1,13 +1,12 @@
-import {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
-import type {SearchProperties} from "@lyrasearch/lyra/dist/esm/src/types"
+import type {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
+import type {ResolveSchema} from "@lyrasearch/lyra/dist/esm/src/types"
 
-export type MatchProperty = {id: string} & {[key: string]: string | number | boolean}
-export type MatchProperties = MatchProperty[]
+export type MatchProperty<T extends PropertiesSchema> = {id: string} & ResolveSchema<T>
 
-export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperties {
-  const properties = (!params.properties || params.properties === "*" ? [] : params.properties) as SearchProperties<T>[]
+export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperty<T>[] {
+  const properties = !params.properties || params.properties === "*" ? [] : params.properties
   const {term} = params
-  const matches = [] as unknown as MatchProperties
+  const matches = [] as unknown as MatchProperty<T>[]
   for (const hit of hits) {
     const props = (properties.length > 0 ? properties : Object.keys(hit)) as []
     const matchedProps = createMatchesObject(hit, term, props)
@@ -16,12 +15,13 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   return matches
 }
 
-function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: string[]): MatchProperty {
-  const matchedProps = {} as MatchProperty
+function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: string[]): MatchProperty<T> {
+  const matchedProps = {} as MatchProperty<T>
   for (const property of properties) {
     const value = hit[property] as string | number | boolean
     if (checkValue(value, term)) {
       matchedProps["id"] = hit.id
+      // @ts-expect-error - it's a valid property
       matchedProps[property] = value
     }
   }
