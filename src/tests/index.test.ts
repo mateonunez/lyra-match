@@ -1,11 +1,11 @@
 import {create, insert, PropertiesSchema, search, SearchParams} from "@lyrasearch/lyra"
 import {test} from "tap"
-import {match, MatchProperties, MatchProperty} from ".."
+import {match, MatchProperty} from ".."
 
-function removeId<T extends PropertiesSchema>(match: MatchProperty<T>): Omit<MatchProperties<T>, "id"> {
+function removeId<T extends PropertiesSchema>(match: MatchProperty<T>): Omit<MatchProperty<T>, "id"> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {id, ...rest} = match
-  return rest as unknown as Omit<MatchProperties<T>, "id">
+  return rest as unknown as Omit<MatchProperty<T>, "id">
 }
 
 test("match", ({test, plan}) => {

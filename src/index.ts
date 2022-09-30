@@ -1,13 +1,12 @@
-import {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
-import type {ResolveSchema, SearchProperties} from "@lyrasearch/lyra/dist/esm/src/types"
+import type {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
+import type {ResolveSchema} from "@lyrasearch/lyra/dist/esm/src/types"
 
-export type MatchProperty<T extends PropertiesSchema> = ResolveSchema<T> & {id: string}
-export type MatchProperties<T extends PropertiesSchema> = MatchProperty<T>[]
+export type MatchProperty<T extends PropertiesSchema> = {id: string} & ResolveSchema<T>
 
-export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperties<T> {
-  const properties = (!params.properties || params.properties === "*" ? [] : params.properties) as SearchProperties<T>[]
+export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperty<T>[] {
+  const properties = !params.properties || params.properties === "*" ? [] : params.properties
   const {term} = params
-  const matches = [] as unknown as MatchProperties<T>
+  const matches = [] as unknown as MatchProperty<T>[]
   for (const hit of hits) {
     const props = (properties.length > 0 ? properties : Object.keys(hit)) as []
     const matchedProps = createMatchesObject(hit, term, props)
@@ -16,19 +15,22 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   return matches
 }
 
-function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: []): MatchProperty<T> {
-  const matchedProps = {} as any
+function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: string[]): MatchProperty<T> {
+  const matchedProps = {} as MatchProperty<T>
   for (const property of properties) {
-    const value = hit[property]
-    matchedProps["id"] = hit.id
-    if (checkValue(value, term)) matchedProps[property] = value
+    const value = hit[property] as string | number | boolean
+    if (checkValue(value, term)) {
+      matchedProps["id"] = hit.id
+      // @ts-expect-error - it's a valid property
+      matchedProps[property] = value
+    }
   }
   return matchedProps
 }
 
-function checkValue(value: any, term: string | number | boolean): boolean {
-  return (
-    (typeof value === "string" && value.toString().toLowerCase().includes(term.toString().toLowerCase())) ||
-    ((typeof value === "number" || typeof value === "boolean") && value === term)
-  )
+function checkValue(value: string | number | boolean, term: string | number | boolean): boolean {
+  if (typeof value === "string") {
+    return value.toLowerCase().includes(term.toString().toLowerCase())
+  }
+  return value === term
 }
