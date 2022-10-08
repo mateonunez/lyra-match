@@ -38,7 +38,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@lyrasearch/lyra": "^0.2.4"
+    "@lyrasearch/lyra": "^0.2.5"
   },
   "devDependencies": {
     "@fastify/pre-commit": "^2.0.2",
