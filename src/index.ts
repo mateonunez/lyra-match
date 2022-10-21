@@ -5,6 +5,7 @@ type ExpectedType = string | number | boolean
 export type MatchProperty<T extends PropertiesSchema> = {id: string} & ResolveSchema<T>
 
 export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperty<T>[] {
+  if (hits.length === 0) return []
   const properties = !params.properties || params.properties === "*" ? [] : params.properties
   const props = (properties.length > 0 ? properties : Object.keys(hits[0])) as []
   const {term} = params
