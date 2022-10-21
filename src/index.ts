@@ -1,6 +1,7 @@
 import type {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
 import type {ResolveSchema} from "@lyrasearch/lyra/dist/esm/src/types"
 
+type ExpectedType = string | number | boolean
 export type MatchProperty<T extends PropertiesSchema> = {id: string} & ResolveSchema<T>
 
 export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperty<T>[] {
@@ -15,10 +16,10 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   return matches
 }
 
-function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: string[]): MatchProperty<T> {
+function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: ExpectedType, properties: string[]): MatchProperty<T> {
   const matchedProps = {} as MatchProperty<T>
   for (const property of properties) {
-    const value = hit[property] as string | number | boolean
+    const value = hit[property] as ExpectedType
     if (checkValue(value, term)) {
       matchedProps["id"] = hit.id
       // @ts-expect-error - it's a valid property
@@ -28,7 +29,7 @@ function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, t
   return matchedProps
 }
 
-function checkValue(value: string | number | boolean, term: string | number | boolean): boolean {
+function checkValue(value: ExpectedType, term: ExpectedType): boolean {
   if (typeof value === "string") {
     return value.toLowerCase().includes(term.toString().toLowerCase())
   }
