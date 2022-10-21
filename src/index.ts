@@ -1,4 +1,4 @@
-import type {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
+import {PropertiesSchema, RetrievedDoc, SearchParams, tokenize} from "@lyrasearch/lyra"
 import type {ResolveSchema} from "@lyrasearch/lyra/dist/esm/src/types"
 
 type ExpectedType = string | number | boolean
@@ -8,20 +8,22 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   if (hits.length === 0) return []
   const properties = !params.properties || params.properties === "*" ? [] : params.properties
   const props = (properties.length > 0 ? properties : Object.keys(hits[0])) as []
-  const {term} = params
+  const terms = tokenize(params.term)
   const matches = [] as unknown as MatchProperty<T>[]
   for (const hit of hits) {
-    const matchedProps = createMatchesObject(hit, term, props)
-    matches.push(matchedProps)
+    const matchedProps = createMatchesObject(hit, terms, props)
+    if (Object.keys(matchedProps).length > 0) {
+      matches.push(matchedProps)
+    }
   }
   return matches
 }
 
-function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: ExpectedType, properties: string[]): MatchProperty<T> {
+function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, terms: ExpectedType[], properties: string[]): MatchProperty<T> {
   const matchedProps = {} as MatchProperty<T>
   for (const property of properties) {
     const value = hit[property] as ExpectedType
-    if (checkValue(value, term)) {
+    if (checkValue(value, terms)) {
       matchedProps["id"] = hit.id
       // @ts-expect-error - it's a valid property
       matchedProps[property] = value
@@ -30,9 +32,15 @@ function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, t
   return matchedProps
 }
 
-function checkValue(value: ExpectedType, term: ExpectedType): boolean {
-  if (typeof value === "string") {
-    return value.toLowerCase().includes(term.toString().toLowerCase())
+function checkValue(value: ExpectedType, terms: ExpectedType[]): boolean {
+  for (const term of terms) {
+    if (typeof value === "string") {
+      if (value.toLowerCase().includes(term.toString().toLowerCase())) {
+        return true
+      }
+    } else if (value === term) {
+      return true
+    }
   }
-  return value === term
+  return false
 }
