@@ -6,10 +6,10 @@ export type MatchProperty<T extends PropertiesSchema> = {id: string} & ResolveSc
 
 export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], params: SearchParams<T>): MatchProperty<T>[] {
   const properties = !params.properties || params.properties === "*" ? [] : params.properties
+  const props = (properties.length > 0 ? properties : Object.keys(hits[0])) as []
   const {term} = params
   const matches = [] as unknown as MatchProperty<T>[]
   for (const hit of hits) {
-    const props = (properties.length > 0 ? properties : Object.keys(hit)) as []
     const matchedProps = createMatchesObject(hit, term, props)
     matches.push(matchedProps)
   }
