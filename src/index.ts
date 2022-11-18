@@ -7,20 +7,19 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   const properties = !params.properties || params.properties === "*" ? [] : params.properties
   const {term} = params
   const matches = [] as unknown as MatchProperty<T>[]
-  for (const hit of hits) {
-    const props = (properties.length > 0 ? properties : Object.keys(hit)) as []
-    const matchedProps = createMatchesObject(hit, term, props)
+  for (const { document } of hits) {
+    const props = (properties.length > 0 ? properties : Object.keys(document)) as []
+    const matchedProps = createMatchesObject(document, term, props)
     matches.push(matchedProps)
   }
   return matches
 }
 
-function createMatchesObject<T extends PropertiesSchema>(hit: RetrievedDoc<T>, term: string | number | boolean, properties: string[]): MatchProperty<T> {
+function createMatchesObject<T extends PropertiesSchema>(hit: ResolveSchema<T>, term: string | number | boolean, properties: string[]): MatchProperty<T> {
   const matchedProps = {} as MatchProperty<T>
   for (const property of properties) {
     const value = hit[property] as string | number | boolean
     if (checkValue(value, term)) {
-      matchedProps["id"] = hit.id
       // @ts-expect-error - it's a valid property
       matchedProps[property] = value
     }
