@@ -7,7 +7,7 @@ export function match<T extends PropertiesSchema>(hits: RetrievedDoc<T>[], param
   const properties = !params.properties || params.properties === "*" ? [] : params.properties
   const {term} = params
   const matches = [] as unknown as MatchProperty<T>[]
-  for (const { document } of hits) {
+  for (const {document} of hits) {
     const props = (properties.length > 0 ? properties : Object.keys(document)) as []
     const matchedProps = createMatchesObject(document, term, props)
     matches.push(matchedProps)
