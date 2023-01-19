@@ -1,5 +1,5 @@
-import type {PropertiesSchema, RetrievedDoc, SearchParams} from "@lyrasearch/lyra"
-import type {ResolveSchema} from "@lyrasearch/lyra/dist/esm/src/types"
+import type {RetrievedDoc, SearchParams} from "@lyrasearch/lyra/dist/methods/search"
+import type {ResolveSchema, PropertiesSchema} from "@lyrasearch/lyra/dist/types"
 
 export type MatchProperty<T extends PropertiesSchema> = {id: string} & ResolveSchema<T>
 
